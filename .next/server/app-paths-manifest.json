@@ -1,0 +1,9 @@
+{
+  "/factory/page": "app/factory/page.js",
+  "/oem-private-label/page": "app/oem-private-label/page.js",
+  "/page": "app/page.js",
+  "/products/[slug]/page": "app/products/[slug]/page.js",
+  "/collections/[slug]/page": "app/collections/[slug]/page.js",
+  "/contact/page": "app/contact/page.js",
+  "/about/page": "app/about/page.js"
+}
