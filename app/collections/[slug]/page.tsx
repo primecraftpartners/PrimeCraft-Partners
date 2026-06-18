@@ -4,18 +4,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CTA } from "@/components/CTA";
 import { ProductGridClient } from "@/components/ProductGridClient";
-import { collections, collectionOrder, getProductsByCollection, type CollectionSlug } from "@/lib/products";
+import { getCollectionBySlug, getCollections, getProductsByCollection } from "@/lib/products";
 
 type CollectionPageProps = {
-  params: { slug: CollectionSlug };
+  params: { slug: string };
 };
 
 export function generateStaticParams() {
-  return collectionOrder.map((slug) => ({ slug }));
+  return getCollections().map((collection) => ({ slug: collection.slug }));
 }
 
 export function generateMetadata({ params }: CollectionPageProps): Metadata {
-  const collection = collections[params.slug];
+  const collection = getCollectionBySlug(params.slug);
   if (!collection) return {};
 
   return {
@@ -25,7 +25,7 @@ export function generateMetadata({ params }: CollectionPageProps): Metadata {
 }
 
 export default function CollectionPage({ params }: CollectionPageProps) {
-  const collection = collections[params.slug];
+  const collection = getCollectionBySlug(params.slug);
   if (!collection) notFound();
 
   const products = getProductsByCollection(params.slug);
@@ -41,7 +41,9 @@ export default function CollectionPage({ params }: CollectionPageProps) {
           <p className="eyebrow mb-4 text-brass">Collection</p>
           <h1 className="max-w-4xl text-4xl font-black leading-tight sm:text-6xl">{collection.title}</h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/72">{collection.description}</p>
-          <p className="mt-4 text-base font-black text-brass">100+ Additional Designs Available Upon Request.</p>
+          <p className="mt-4 text-base font-black text-brass">
+            {collection.productCount} catalogue products. Additional custom designs available upon request.
+          </p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <Link href="/contact#quote" className="btn-gold">Request Quote</Link>
             <Link href="/contact#catalogue" className="btn-secondary border-white/20 bg-transparent text-white hover:border-brass hover:text-brass">Request Catalogue</Link>

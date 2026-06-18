@@ -21,7 +21,7 @@ export const site = {
 export const navItems = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/products" },
-  { label: "Collections", href: "/collections/mens-leather-vests" },
+  { label: "Collections", href: "/products#categories" },
   { label: "OEM & Private Label", href: "/oem-private-label" },
   { label: "Factory", href: "/factory" },
   { label: "About", href: "/about" },

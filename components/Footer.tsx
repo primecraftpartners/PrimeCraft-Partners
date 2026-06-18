@@ -1,10 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Linkedin, Mail, MapPin, MessageCircle } from "lucide-react";
-import { collectionOrder, collections } from "@/lib/products";
+import { getCollections } from "@/lib/products";
 import { navItems, site } from "@/lib/site";
 
 export function Footer() {
+  const collections = getCollections();
+
   return (
     <footer className="bg-ink text-white">
       <div className="container-pad grid gap-10 py-14 lg:grid-cols-[1.4fr_1fr_1fr_1.1fr]">
@@ -27,9 +29,9 @@ export function Footer() {
         <div>
           <h3 className="text-sm font-black uppercase tracking-[0.18em] text-brass">Collections</h3>
           <div className="mt-5 grid gap-3 text-sm text-white/70">
-            {collectionOrder.map((slug) => (
-              <Link key={slug} href={`/collections/${slug}`} className="hover:text-brass">
-                {collections[slug].title}
+            {collections.map((collection) => (
+              <Link key={collection.slug} href={`/collections/${collection.slug}`} className="hover:text-brass">
+                {collection.title}
               </Link>
             ))}
           </div>

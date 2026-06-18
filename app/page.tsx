@@ -1,15 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, FileText, Globe2, MessageSquareText } from "lucide-react";
+import { ArrowRight, Globe2, MessageSquareText } from "lucide-react";
 import { CTA } from "@/components/CTA";
 import { FactoryMedia } from "@/components/FactoryMedia";
 import { FinishGrid } from "@/components/FinishGrid";
 import { ProductCard } from "@/components/ProductCard";
 import { SectionHeader } from "@/components/SectionHeader";
 import { capabilities, whyChooseUs } from "@/lib/site";
-import { collectionOrder, collections, getFeaturedProducts } from "@/lib/products";
+import { getCollections, getFeaturedProducts } from "@/lib/products";
 
 export default function HomePage() {
+  const collections = getCollections();
   const featuredProducts = getFeaturedProducts(16);
 
   return (
@@ -98,15 +99,23 @@ export default function HomePage() {
             title="Leather apparel collections built for wholesale and brand programs"
             text="Explore core manufacturing categories without browsing an overloaded public catalogue."
           />
-          <div className="mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-5">
-            {collectionOrder.map((slug) => (
-              <Link key={slug} href={`/collections/${slug}`} className="group rounded-md border border-ink/10 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-soft">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-leather">{collections[slug].category}</p>
-                <h3 className="mt-3 text-xl font-black text-ink">{collections[slug].shortTitle}</h3>
-                <p className="mt-4 text-sm leading-6 text-ink/60">{collections[slug].description}</p>
-                <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-leather">
-                  View collection <ArrowRight size={16} />
-                </span>
+          <div className="mt-9 grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {collections.map((collection) => (
+              <Link key={collection.slug} href={`/collections/${collection.slug}`} className="group overflow-hidden rounded-md border border-ink/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-soft">
+                <div className="relative aspect-[16/11] bg-parchment">
+                  <Image src={collection.image} alt="" fill sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
+                  <div className="absolute left-3 top-3 rounded-sm bg-ink px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+                    {collection.productCount} products
+                  </div>
+                </div>
+                <div className="p-5">
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-leather">{collection.category}</p>
+                  <h3 className="mt-3 text-xl font-black text-ink">{collection.shortTitle}</h3>
+                  <p className="mt-4 text-sm leading-6 text-ink/60">{collection.description}</p>
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-leather">
+                    View collection <ArrowRight size={16} />
+                  </span>
+                </div>
               </Link>
             ))}
           </div>

@@ -29,7 +29,7 @@ export default function ProductsPage() {
           </div>
         </div>
       </section>
-      <section className="bg-parchment py-16">
+      <section id="categories" className="bg-parchment py-16">
         <div className="container-pad">
           <SectionHeader
             eyebrow="Search & Filter"

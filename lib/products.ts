@@ -8,7 +8,7 @@ export type Product = {
   slug: string;
   name: string;
   category: string;
-  collection: CollectionSlug;
+  categorySlug: string;
   description: string;
   material: string;
   moq: string;
@@ -19,72 +19,18 @@ export type Product = {
   featured: boolean;
 };
 
-export type CollectionSlug =
-  | "mens-leather-vests"
-  | "leather-jackets"
-  | "leather-gloves"
-  | "leather-pants"
-  | "womens-leather-vests";
+export type CollectionSlug = string;
 
-export const collections: Record<
-  CollectionSlug,
-  {
-    title: string;
-    shortTitle: string;
-    category: string;
-    description: string;
-    image: string;
-    seo: string;
-  }
-> = {
-  "mens-leather-vests": {
-    title: "Men's Leather Vests",
-    shortTitle: "Leather Vests",
-    category: "Leather Vests",
-    description:
-      "OEM motorcycle vests, club vests, braided vests and private label leather vest production for brands and wholesalers.",
-    image: "/assets/brand/banner.png",
-    seo: "Leather vest manufacturer and motorcycle vest supplier for private label brands."
-  },
-  "leather-jackets": {
-    title: "Leather Jackets",
-    shortTitle: "Leather Jackets",
-    category: "Leather Jackets",
-    description:
-      "Custom leather jackets manufactured for apparel brands, retailers and importers with flexible branding options.",
-    image: "/assets/brand/custom-labeling.png",
-    seo: "Leather jacket manufacturer for OEM and private label leather clothing."
-  },
-  "leather-gloves": {
-    title: "Leather Gloves",
-    shortTitle: "Leather Gloves",
-    category: "Leather Gloves",
-    description:
-      "Motorcycle leather gloves, tactical gloves and padded glove production for global wholesale buyers.",
-    image: "/assets/factory/stitching-floor.jpg",
-    seo: "Leather gloves manufacturer for motorcycle and custom leather apparel suppliers."
-  },
-  "leather-pants": {
-    title: "Leather Pants",
-    shortTitle: "Leather Pants",
-    category: "Leather Pants",
-    description:
-      "Biker leather pants, leather trousers and custom leather bottoms produced for private label programs.",
-    image: "/assets/factory/production-sorting.jpeg",
-    seo: "Leather pants manufacturer for custom leather garments and wholesale importers."
-  },
-  "womens-leather-vests": {
-    title: "Women's Leather Vests",
-    shortTitle: "Women's Collection",
-    category: "Women's Leather Vests",
-    description:
-      "Fitted women's leather vests, fashion vests and custom private label women's leather apparel.",
-    image: "/assets/brand/custom-labeling.png",
-    seo: "Women's leather vest manufacturer with OEM and private label production."
-  }
+export type ProductCollection = {
+  slug: CollectionSlug;
+  title: string;
+  shortTitle: string;
+  category: string;
+  description: string;
+  image: string;
+  seo: string;
+  productCount: number;
 };
-
-export const collectionOrder = Object.keys(collections) as CollectionSlug[];
 
 function slugify(value: string) {
   return value
@@ -94,6 +40,23 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+function titleCase(value: string) {
+  return value
+    .toLowerCase()
+    .split(" ")
+    .map((word) => {
+      if (!word) return word;
+      if (word.includes("'")) {
+        return word
+          .split("'")
+          .map((part, index) => (index === 0 ? `${part.charAt(0).toUpperCase()}${part.slice(1)}` : part))
+          .join("'");
+      }
+      return `${word.charAt(0).toUpperCase()}${word.slice(1)}`;
+    })
+    .join(" ");
+}
+
 function splitList(value: string) {
   return value
     .split(/[,|]/)
@@ -101,22 +64,30 @@ function splitList(value: string) {
     .filter(Boolean);
 }
 
-function resolveCollection(category: string, name: string): CollectionSlug {
-  const normalized = `${category} ${name}`.toLowerCase();
+function cleanCategory(value: string) {
+  return titleCase(value.trim() || "Uncategorized");
+}
 
-  if (normalized.includes("women") && normalized.includes("vest")) {
-    return "womens-leather-vests";
-  }
+function describeCategory(category: string) {
+  const normalized = category.toLowerCase();
+
   if (normalized.includes("jacket")) {
-    return "leather-jackets";
+    return `${category} styles manufactured for OEM, wholesale and private label leather apparel programs.`;
   }
-  if (normalized.includes("glove") || normalized.includes("protector")) {
-    return "leather-gloves";
+  if (normalized.includes("vest")) {
+    return `${category} designs for motorcycle, fashion, club and custom private label collections.`;
+  }
+  if (normalized.includes("glove")) {
+    return `${category} production for motorcycle, tactical and custom leather accessory lines.`;
+  }
+  if (normalized.includes("protector")) {
+    return `${category} options for protective leather apparel and riding accessory programs.`;
   }
   if (normalized.includes("pant") || normalized.includes("trouser") || normalized.includes("jeans")) {
-    return "leather-pants";
+    return `${category} manufactured for biker, fashion and wholesale leather clothing buyers.`;
   }
-  return "mens-leather-vests";
+
+  return `${category} products available for OEM manufacturing, private label branding and wholesale inquiry.`;
 }
 
 function materialFallback(name: string, description: string) {
@@ -129,6 +100,7 @@ function materialFallback(name: string, description: string) {
 }
 
 let cache: Product[] | null = null;
+let collectionsCache: ProductCollection[] | null = null;
 
 export function getProducts(): Product[] {
   if (cache) return cache;
@@ -138,7 +110,8 @@ export function getProducts(): Product[] {
 
   const products = rows.map((row, index) => {
     const name = row["Product Name"] || "Custom Leather Product";
-    const collection = resolveCollection(row.Category || "", name);
+    const category = cleanCategory(row.Category || "");
+    const categorySlug = slugify(category);
     const images = [
       row["Main Image"],
       row["Image 2"],
@@ -151,9 +124,9 @@ export function getProducts(): Product[] {
       sku: row.SKU,
       slug: `${slugify(name)}-${row.SKU.toLowerCase()}`,
       name,
-      category: collections[collection].category,
-      collection,
-      description: row.Description || collections[collection].description,
+      category,
+      categorySlug,
+      description: row.Description || describeCategory(category),
       material: row.Material || materialFallback(name, row.Description || ""),
       moq: row.MOQ || "50",
       colors: splitList(row["Colors Available"] || "Black, Brown, Tan, Custom Colors"),
@@ -168,6 +141,50 @@ export function getProducts(): Product[] {
   return products;
 }
 
+export function getCollections(): ProductCollection[] {
+  if (collectionsCache) return collectionsCache;
+
+  const grouped = getProducts().reduce<Map<string, Product[]>>((map, product) => {
+    const existing = map.get(product.categorySlug) ?? [];
+    existing.push(product);
+    map.set(product.categorySlug, existing);
+    return map;
+  }, new Map());
+
+  collectionsCache = Array.from(grouped.entries())
+    .map(([slug, products]: [string, Product[]]) => {
+      const category = products[0]?.category ?? "Uncategorized";
+      const image = products.find((product) => product.images[0])?.images[0] ?? "/assets/brand/banner.png";
+
+      return {
+        slug,
+        title: category,
+        shortTitle: category.replace(/^Leather\s+/i, ""),
+        category,
+        description: describeCategory(category),
+        image,
+        seo: `${category} manufacturer for OEM, wholesale and private label leather production.`,
+        productCount: products.length
+      };
+    })
+    .sort((a, b) => a.category.localeCompare(b.category));
+
+  return collectionsCache;
+}
+
+export const collectionOrder: CollectionSlug[] = getCollections().map((collection) => collection.slug);
+
+export function getCollectionsRecord() {
+  return getCollections().reduce<Record<string, ProductCollection>>((record, collection) => {
+    record[collection.slug] = collection;
+    return record;
+  }, {});
+}
+
+export function getCollectionBySlug(slug: string) {
+  return getCollections().find((collection) => collection.slug === slug);
+}
+
 export function getFeaturedProducts(limit = 16) {
   return getProducts()
     .filter((product) => product.images.length > 0)
@@ -179,20 +196,20 @@ export function getProductBySlug(slug: string) {
 }
 
 export function getProductsByCollection(collection: CollectionSlug) {
-  return getProducts().filter((product) => product.collection === collection);
+  return getProducts().filter((product) => product.categorySlug === collection);
 }
 
 export function getSizeChart(product: Product) {
-  const key =
-    product.collection === "womens-leather-vests"
-      ? "Women's Leather Vests"
-      : product.collection === "mens-leather-vests"
-        ? "Men's Leather Vests"
-        : product.collection === "leather-jackets"
-          ? "Leather Jackets"
-          : product.collection === "leather-gloves"
-            ? "Leather Gloves"
-            : "Leather Pants";
+  const normalized = `${product.category} ${product.name}`.toLowerCase();
+  const key = normalized.includes("women") && normalized.includes("vest")
+    ? "Women's Leather Vests"
+    : normalized.includes("vest")
+      ? "Men's Leather Vests"
+      : normalized.includes("jacket")
+        ? "Leather Jackets"
+        : normalized.includes("glove") || normalized.includes("protector")
+          ? "Leather Gloves"
+          : "Leather Pants";
 
   return sizeCharts[key];
 }
