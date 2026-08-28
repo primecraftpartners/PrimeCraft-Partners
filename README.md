@@ -29,9 +29,28 @@ custom.css             Small handwritten CSS for the few things Tailwind utiliti
                         (the spec-sheet hangtag, stitched-thread divider, spinning ring)
 script.js               Nav toggle, Web3Forms submission handler, homepage product loader
 catalogue.js            Catalogue search / filter / pagination logic
+product-modal.js        Shared product detail modal (opens on card click, no dollar prices)
 assets/catalogue.json   Your product data, converted from the CSV you uploaded (275 products)
 assets/factory/         Real photos from your Sialkot floor, used in the Material & QA section
 ```
+
+## Product cards & the detail modal (new)
+- Every product card — on the homepage "Product Range" section and on the full
+  `catalogue.html` — now shows a **`MOQ: 50 Pcs | Custom Quote`** badge instead of any dollar
+  price.
+- Clicking a card no longer jumps straight to WhatsApp. It opens an on-page **modal** with the
+  product photo, name, style code, and standard tech specs (leather grade options, hardware,
+  lining, 10–14 day turnaround).
+- Inside the modal:
+  - **"Request Price Quote & Tech Pack Review"** closes the modal, smooth-scrolls to the contact
+    form, and pre-fills the message field with `Inquiry for Style [code] ([name]): Please provide
+    custom pricing and spec evaluation.` (If someone opens the modal from `catalogue.html`, which
+    has no contact form of its own, this button instead sends them to `index.html#contact` with
+    the same message pre-filled.)
+  - **"Chat on WhatsApp"** opens `wa.me/923719242006` with a message referencing that specific
+    style code, kept as the optional direct line.
+- All of this logic lives in `product-modal.js`, shared by both pages — `script.js` and
+  `catalogue.js` just render cards with `data-*` attributes and hand the click off to it.
 
 There's no `style.css`/`catalogue.css` anymore — layout and color now come from Tailwind utility
 classes directly in the HTML, loaded via `<script src="https://cdn.tailwindcss.com">`. That means

@@ -138,23 +138,33 @@
       ? '<img src="' + p.img + '" alt="' + escapeHtml(p.name) + '" loading="lazy" width="400" height="400" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML=\'<div class=&quot;product-thumb-fallback w-full h-full flex items-center justify-center text-gold-light font-mono text-[0.7rem] text-center p-2&quot;>' + escapeHtml(p.sku) + '</div>\'">'
       : '<div class="product-thumb-fallback w-full h-full flex items-center justify-center text-gold-light font-mono text-[0.7rem] text-center p-2">' + escapeHtml(p.sku) + "</div>";
 
-    var waMsg = encodeURIComponent(
-      "Hi PrimeCraft Partners, I'm interested in " + p.name + " (" + p.sku + "). Could you share pricing and MOQ details?"
-    );
-
     return (
-      '<a class="group bg-white border border-greyline rounded overflow-hidden flex flex-col hover:shadow-[0_10px_30px_-14px_rgba(26,26,26,0.25)] hover:-translate-y-0.5 transition-all" href="https://wa.me/923719242006?text=' + waMsg + '" target="_blank" rel="noopener">' +
+      '<button type="button" class="product-card group bg-white border border-greyline rounded overflow-hidden flex flex-col w-full text-left hover:shadow-[0_10px_30px_-14px_rgba(26,26,26,0.25)] hover:-translate-y-0.5 transition-all" ' +
+        'data-name="' + escapeHtml(p.name) + '" data-sku="' + escapeHtml(p.sku) + '" data-category="' + escapeHtml(p.category) + '" data-img="' + escapeHtml(p.img || "") + '">' +
         '<div class="w-full aspect-square bg-greybg overflow-hidden">' + img + "</div>" +
         '<div class="p-3.5 sm:p-4 flex flex-col gap-1.5 flex-1">' +
           '<span class="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-brown">' + escapeHtml(p.category) + "</span>" +
           '<span class="text-[0.92rem] font-bold text-charcoal leading-snug">' + escapeHtml(p.name) + "</span>" +
           '<div class="flex justify-between items-center mt-auto pt-2">' +
-            '<span class="font-mono font-semibold text-[0.85rem] text-charcoal">' + (p.price ? escapeHtml(p.price) : "Quote on request") + "</span>" +
-            '<span class="text-[0.72rem] text-inksoft">MOQ ' + escapeHtml(p.moq || "50") + "</span>" +
+            '<span class="font-mono font-semibold text-[0.75rem] text-charcoal">MOQ: 50 Pcs</span>' +
+            '<span class="text-[0.72rem] font-semibold text-brown">Custom Quote</span>' +
           "</div>" +
         "</div>" +
-      "</a>"
+      "</button>"
     );
+  }
+
+  function handleFeaturedCardClick(e) {
+    var card = e.target.closest(".product-card");
+    if (!card) return;
+    if (window.PCProductModal) {
+      window.PCProductModal.open({
+        name: card.dataset.name,
+        sku: card.dataset.sku,
+        category: card.dataset.category,
+        img: card.dataset.img
+      });
+    }
   }
 
   if (grid) {
@@ -178,6 +188,7 @@
         });
 
         grid.innerHTML = featured.map(productCardHTML).join("");
+        grid.addEventListener("click", handleFeaturedCardClick);
 
         catTiles.forEach(function (tile) {
           tile.addEventListener("click", function () {
