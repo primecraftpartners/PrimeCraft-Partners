@@ -1,15 +1,29 @@
+/**
+ * product-modal.js
+ * -----------------------------------------------------------------------
+ * Renders the product detail modal from live catalogData (see
+ * catalog-data.js). Call window.PCProductModal.open(productId) — the id
+ * is looked up in the shared window.PCCatalog registry and every field
+ * (image, title, category, material, hardware, lining, lead time,
+ * description) is populated from that specific product's own data.
+ * -----------------------------------------------------------------------
+ */
 (function () {
   "use strict";
 
   var modal = document.getElementById("product-modal");
   if (!modal) return;
 
-  var overlay = document.getElementById("pm-overlay");
   var closeBtn = document.getElementById("pm-close");
   var imgEl = document.getElementById("pm-image");
+  var categoryEl = document.getElementById("pm-category");
   var titleEl = document.getElementById("pm-title");
   var skuEl = document.getElementById("pm-sku");
-  var categoryEl = document.getElementById("pm-category");
+  var materialEl = document.getElementById("pm-material");
+  var hardwareEl = document.getElementById("pm-hardware");
+  var liningEl = document.getElementById("pm-lining");
+  var leadTimeEl = document.getElementById("pm-lead-time");
+  var descriptionEl = document.getElementById("pm-description");
   var quoteBtn = document.getElementById("pm-quote-btn");
   var waBtn = document.getElementById("pm-whatsapp-btn");
 
@@ -17,26 +31,35 @@
   var lastFocused = null;
 
   function buildQuoteMessage(product) {
-    return "Inquiry for Style " + product.sku + " (" + product.name + "): Please provide custom pricing and spec evaluation.";
+    return "Inquiry for " + product.title + " (" + product.id + "): Please provide custom FOB pricing, material recommendations, and sample lead times.";
   }
 
   function buildWhatsAppUrl(product) {
     var text = encodeURIComponent(
-      "Hi PrimeCraft Partners, I'm interested in Style " + product.sku + ": " + product.name + ". Could you share pricing and MOQ details?"
+      "Hi PrimeCraft, I am interested in custom production for " + product.title + " (" + product.id + ")."
     );
     return "https://wa.me/923719242006?text=" + text;
   }
 
-  function openModal(product) {
-    if (!product) return;
+  /**
+   * Opens the modal for a given product id, pulling that product's own
+   * data out of window.PCCatalog — this is the fix for the "every modal
+   * shows the same specs" bug: nothing here is hardcoded per-open.
+   */
+  function openModal(productId) {
+    var product = window.PCCatalog && window.PCCatalog[productId];
+    if (!product) {
+      console.warn("PCProductModal: no catalog entry for id", productId);
+      return;
+    }
     currentProduct = product;
     lastFocused = document.activeElement;
 
     if (imgEl) {
-      if (product.img) {
+      if (product.image) {
         imgEl.style.display = "";
-        imgEl.src = product.img;
-        imgEl.alt = product.name || "";
+        imgEl.src = product.image;
+        imgEl.alt = product.title || "";
         imgEl.onerror = function () {
           imgEl.style.display = "none";
         };
@@ -46,9 +69,14 @@
       }
     }
 
-    if (titleEl) titleEl.textContent = product.name || "";
-    if (skuEl) skuEl.textContent = "Style " + (product.sku || "—");
     if (categoryEl) categoryEl.textContent = product.category || "";
+    if (titleEl) titleEl.textContent = product.title || "";
+    if (skuEl) skuEl.textContent = "Style " + (product.id || "\u2014");
+    if (materialEl) materialEl.textContent = product.material || "\u2014";
+    if (hardwareEl) hardwareEl.textContent = product.hardware || "\u2014";
+    if (liningEl) liningEl.textContent = product.lining || "\u2014";
+    if (leadTimeEl) leadTimeEl.textContent = product.leadTime || "\u2014";
+    if (descriptionEl) descriptionEl.textContent = product.description || "";
     if (waBtn) waBtn.href = buildWhatsAppUrl(product);
 
     modal.classList.remove("hidden");
@@ -98,7 +126,10 @@
   }
 
   if (closeBtn) closeBtn.addEventListener("click", closeModal);
-  if (overlay) overlay.addEventListener("click", closeModal);
+  modal.addEventListener("click", function (e) {
+    // Click on the dark overlay itself (not the modal card) closes it
+    if (e.target === modal) closeModal();
+  });
   if (quoteBtn) quoteBtn.addEventListener("click", requestQuote);
 
   // Exposed so catalogue.js / script.js can open the modal from a card click

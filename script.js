@@ -134,20 +134,20 @@
   }
 
   function productCardHTML(p) {
-    var img = p.img
-      ? '<img src="' + p.img + '" alt="' + escapeHtml(p.name) + '" loading="lazy" width="400" height="400" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML=\'<div class=&quot;product-thumb-fallback w-full h-full flex items-center justify-center text-gold-light font-mono text-[0.7rem] text-center p-2&quot;>' + escapeHtml(p.sku) + '</div>\'">'
-      : '<div class="product-thumb-fallback w-full h-full flex items-center justify-center text-gold-light font-mono text-[0.7rem] text-center p-2">' + escapeHtml(p.sku) + "</div>";
+    var img = p.image
+      ? '<img src="' + p.image + '" alt="' + escapeHtml(p.title) + '" loading="lazy" width="400" height="400" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML=\'<div class=&quot;product-thumb-fallback w-full h-full flex items-center justify-center text-gold-light font-mono text-[0.7rem] text-center p-2&quot;>' + escapeHtml(p.id) + '</div>\'">'
+      : '<div class="product-thumb-fallback w-full h-full flex items-center justify-center text-gold-light font-mono text-[0.7rem] text-center p-2">' + escapeHtml(p.id) + "</div>";
 
     return (
       '<button type="button" class="product-card group bg-white border border-greyline rounded overflow-hidden flex flex-col w-full text-left hover:shadow-[0_10px_30px_-14px_rgba(26,26,26,0.25)] hover:-translate-y-0.5 transition-all" ' +
-        'data-name="' + escapeHtml(p.name) + '" data-sku="' + escapeHtml(p.sku) + '" data-category="' + escapeHtml(p.category) + '" data-img="' + escapeHtml(p.img || "") + '">' +
+        'data-id="' + escapeHtml(p.id) + '">' +
         '<div class="w-full aspect-square bg-greybg overflow-hidden">' + img + "</div>" +
         '<div class="p-3.5 sm:p-4 flex flex-col gap-1.5 flex-1">' +
           '<span class="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-brown">' + escapeHtml(p.category) + "</span>" +
-          '<span class="text-[0.92rem] font-bold text-charcoal leading-snug">' + escapeHtml(p.name) + "</span>" +
+          '<span class="text-[0.92rem] font-bold text-charcoal leading-snug">' + escapeHtml(p.title) + "</span>" +
           '<div class="flex justify-between items-center mt-auto pt-2">' +
             '<span class="font-mono font-semibold text-[0.75rem] text-charcoal">MOQ: 50 Pcs</span>' +
-            '<span class="text-[0.72rem] font-semibold text-brown">Custom Quote</span>' +
+            '<span class="text-[0.72rem] font-semibold text-brown">Custom OEM Quote</span>' +
           "</div>" +
         "</div>" +
       "</button>"
@@ -158,12 +158,7 @@
     var card = e.target.closest(".product-card");
     if (!card) return;
     if (window.PCProductModal) {
-      window.PCProductModal.open({
-        name: card.dataset.name,
-        sku: card.dataset.sku,
-        category: card.dataset.category,
-        img: card.dataset.img
-      });
+      window.PCProductModal.open(card.dataset.id);
     }
   }
 
@@ -171,8 +166,13 @@
     fetch("assets/catalogue.json")
       .then(function (res) { return res.json(); })
       .then(function (data) {
+        // Normalize raw rows into the full modal-ready schema and register
+        // them so the detail modal can look any of them up by id.
+        var catalogData = data.map(window.PCCatalogData.enrichProduct);
+        window.PCCatalogData.registerCatalog(catalogData);
+
         var byCategory = {};
-        data.forEach(function (p) {
+        catalogData.forEach(function (p) {
           if (!byCategory[p.category]) byCategory[p.category] = [];
           byCategory[p.category].push(p);
         });

@@ -150,51 +150,65 @@
 </a>
 
 <!-- ============ PRODUCT DETAIL MODAL ============ -->
-<div id="product-modal" class="hidden fixed inset-0 z-[60] items-center justify-center p-4" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pm-title">
-  <div id="pm-overlay" class="absolute inset-0 bg-charcoal/80 backdrop-blur-sm"></div>
-  <div class="relative bg-white w-full max-w-lg rounded-lg overflow-hidden shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)] max-h-[90vh] flex flex-col">
-    <button id="pm-close" type="button" aria-label="Close product details" class="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-charcoal/70 text-white flex items-center justify-center hover:bg-charcoal transition-colors">
+<!-- Overlay wrapper: fixed, centers the card, IS the dark backdrop (bg-black/80) -->
+<div id="product-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/80 p-4 sm:p-6" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pm-title">
+  <!-- Main modal container: the ONLY scroll container. No nested scrollboxes. -->
+  <div class="max-w-4xl w-full max-h-[90vh] overflow-y-auto bg-[#1A1A1A] text-white rounded-2xl shadow-2xl relative border border-gray-800">
+    <button id="pm-close" type="button" aria-label="Close product details" class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black transition-colors">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
-    <div class="w-full aspect-[4/3] bg-greybg overflow-hidden shrink-0">
-      <img id="pm-image" src="" alt="" class="w-full h-full object-cover">
-    </div>
-    <div class="p-6 sm:p-7 overflow-y-auto">
-      <span id="pm-category" class="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-brown"></span>
-      <h3 id="pm-title" class="font-display font-bold text-charcoal text-xl mt-1 mb-0.5"></h3>
-      <p id="pm-sku" class="font-mono text-[0.8rem] text-inksoft mb-4"></p>
 
-      <div class="inline-flex items-center gap-2 bg-greybg border border-greyline rounded px-3 py-1.5 text-[0.75rem] font-semibold text-charcoal mb-5">
-        MOQ: 50 Pcs&nbsp;|&nbsp;Custom Quote
+    <!-- md:grid = two columns on tablet/desktop; plain block flow (stacked) on mobile -->
+    <div class="md:grid md:grid-cols-2 md:gap-6">
+      <div class="w-full h-64 md:h-full md:min-h-[350px] bg-black/30 overflow-hidden">
+        <img id="pm-image" src="" alt="" class="w-full h-full object-cover rounded-t-2xl md:rounded-t-none md:rounded-l-2xl">
       </div>
 
-      <dl class="space-y-3 mb-6 text-sm">
-        <div class="border-b border-greyline pb-3">
-          <dt class="font-display font-bold text-charcoal text-[0.85rem] mb-1">Leather Grade Options</dt>
-          <dd class="text-inksoft">Full-Grain Cowhide (1.1&ndash;1.3mm) or Top-Grain Sheepskin (0.6&ndash;0.8mm)</dd>
-        </div>
-        <div class="border-b border-greyline pb-3">
-          <dt class="font-display font-bold text-charcoal text-[0.85rem] mb-1">Hardware Specs</dt>
-          <dd class="text-inksoft">Heavy-duty antique brass YKK zippers &amp; debossed metal snaps</dd>
-        </div>
-        <div class="border-b border-greyline pb-3">
-          <dt class="font-display font-bold text-charcoal text-[0.85rem] mb-1">Interior Lining</dt>
-          <dd class="text-inksoft">Premium satin, thermal quilted, or breathable mesh options</dd>
-        </div>
-        <div>
-          <dt class="font-display font-bold text-charcoal text-[0.85rem] mb-1">Turnaround</dt>
-          <dd class="text-inksoft">10&ndash;14 Days for Fit-Sample Prototyping</dd>
-        </div>
-      </dl>
+      <div class="p-6 md:p-8 flex flex-col justify-between space-y-4">
+        <div class="space-y-4">
+          <span id="pm-category" class="inline-block font-mono text-[0.68rem] uppercase tracking-[0.08em] text-gold-light bg-white/5 border border-white/10 rounded-full px-3 py-1"></span>
 
-      <div class="flex flex-col gap-2.5">
-        <button id="pm-quote-btn" type="button" class="w-full font-display font-bold text-[0.9rem] px-6 py-3.5 bg-gold border-2 border-gold text-charcoal hover:bg-gold-light hover:border-gold-light transition-colors">Request Price Quote &amp; Tech Pack Review</button>
-        <a id="pm-whatsapp-btn" href="https://wa.me/923719242006" target="_blank" rel="noopener" class="w-full text-center font-display font-bold text-[0.9rem] px-6 py-3.5 border-2 border-charcoal text-charcoal hover:bg-charcoal hover:text-white transition-colors">Chat on WhatsApp</a>
+          <div>
+            <h3 id="pm-title" class="font-display font-bold text-white text-xl sm:text-2xl leading-snug"></h3>
+            <p id="pm-sku" class="font-mono text-[0.8rem] text-white/50 mt-1"></p>
+          </div>
+
+          <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded px-3 py-1.5 text-[0.75rem] font-semibold text-gold-light">
+            MOQ: 50 Pcs&nbsp;|&nbsp;Custom OEM Quote
+          </div>
+
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-sm border-t border-white/10 pt-4">
+            <div>
+              <dt class="font-display font-bold text-gold-light text-[0.72rem] uppercase tracking-wide mb-1">Material &amp; Hide</dt>
+              <dd id="pm-material" class="text-white/75"></dd>
+            </div>
+            <div>
+              <dt class="font-display font-bold text-gold-light text-[0.72rem] uppercase tracking-wide mb-1">Hardware</dt>
+              <dd id="pm-hardware" class="text-white/75"></dd>
+            </div>
+            <div>
+              <dt class="font-display font-bold text-gold-light text-[0.72rem] uppercase tracking-wide mb-1">Interior Lining</dt>
+              <dd id="pm-lining" class="text-white/75"></dd>
+            </div>
+            <div>
+              <dt class="font-display font-bold text-gold-light text-[0.72rem] uppercase tracking-wide mb-1">Sample Lead Time</dt>
+              <dd id="pm-lead-time" class="text-white/75"></dd>
+            </div>
+          </dl>
+
+          <p id="pm-description" class="text-white/70 text-sm leading-relaxed border-t border-white/10 pt-4"></p>
+        </div>
+
+        <div class="flex flex-col gap-2.5 pt-2">
+          <button id="pm-quote-btn" type="button" class="w-full font-display font-bold text-[0.9rem] px-6 py-3.5 bg-gold border-2 border-gold text-charcoal hover:bg-gold-light hover:border-gold-light transition-colors">Request Price Quote for This Style</button>
+          <a id="pm-whatsapp-btn" href="https://wa.me/923719242006" target="_blank" rel="noopener" class="w-full text-center font-display font-bold text-[0.9rem] px-6 py-3.5 border-2 border-white/30 text-white hover:border-white transition-colors">Chat on WhatsApp</a>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<script src="catalog-data.js"></script>
 <script src="script.js"></script>
 <script src="catalogue.js"></script>
 <script src="product-modal.js"></script>

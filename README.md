@@ -27,30 +27,43 @@ index.html            Homepage — hero, quality/QA, product range, services, pr
 catalogue.html         Full 275-style product catalogue with search + category filter
 custom.css             Small handwritten CSS for the few things Tailwind utilities can't express
                         (the spec-sheet hangtag, stitched-thread divider, spinning ring)
+catalog-data.js         Product data layer: normalizes raw catalogue.json rows into the full
+                        modal schema and registers them in window.PCCatalog by id
 script.js               Nav toggle, Web3Forms submission handler, homepage product loader
 catalogue.js            Catalogue search / filter / pagination logic
-product-modal.js        Shared product detail modal (opens on card click, no dollar prices)
+product-modal.js        Shared product detail modal — looks products up by id, renders their
+                        own material/hardware/lining/lead-time/description
 assets/catalogue.json   Your product data, converted from the CSV you uploaded (275 products)
 assets/factory/         Real photos from your Sialkot floor, used in the Material & QA section
 ```
 
-## Product cards & the detail modal (new)
+## Product cards & the detail modal
 - Every product card — on the homepage "Product Range" section and on the full
-  `catalogue.html` — now shows a **`MOQ: 50 Pcs | Custom Quote`** badge instead of any dollar
+  `catalogue.html` — shows a **`MOQ: 50 Pcs | Custom OEM Quote`** badge instead of any dollar
   price.
-- Clicking a card no longer jumps straight to WhatsApp. It opens an on-page **modal** with the
-  product photo, name, style code, and standard tech specs (leather grade options, hardware,
-  lining, 10–14 day turnaround).
+- Clicking a card opens an on-page **modal** in a spacious two-column layout: photo on the left
+  (full height on desktop, stacked on top on mobile), specs and actions on the right. The whole
+  modal card is a single scroll container — no cramped inner scrollbox under the image.
+- **The modal is fully data-driven, not hardcoded.** Each card only carries `data-id="<sku>"`.
+  Clicking it calls `PCProductModal.open(id)`, which looks that id up in `window.PCCatalog` (built
+  by `catalog-data.js` from `assets/catalogue.json`) and renders **that product's own** material,
+  hardware, lining, lead time, and description — this is what fixes the old bug where every modal
+  showed identical spec text.
+- **Making specs truly unique per SKU:** right now `assets/catalogue.json` only has
+  `name`/`sku`/`category`/`img`. `catalog-data.js` fills the gaps with well-differentiated
+  *per-category* defaults (7 categories, each with its own material/hardware/lining/description)
+  so nothing is identical across unrelated products. To get fully unique copy per individual SKU,
+  add `material`, `hardware`, `lining`, `leadTime`, and `description` columns to your product
+  CSV/JSON — any row that already has these fields will use them instead of the category default,
+  no code changes needed.
 - Inside the modal:
-  - **"Request Price Quote & Tech Pack Review"** closes the modal, smooth-scrolls to the contact
-    form, and pre-fills the message field with `Inquiry for Style [code] ([name]): Please provide
-    custom pricing and spec evaluation.` (If someone opens the modal from `catalogue.html`, which
-    has no contact form of its own, this button instead sends them to `index.html#contact` with
-    the same message pre-filled.)
-  - **"Chat on WhatsApp"** opens `wa.me/923719242006` with a message referencing that specific
-    style code, kept as the optional direct line.
-- All of this logic lives in `product-modal.js`, shared by both pages — `script.js` and
-  `catalogue.js` just render cards with `data-*` attributes and hand the click off to it.
+  - **"Request Price Quote for This Style"** closes the modal, smooth-scrolls to the contact
+    form, and pre-fills the message field with `Inquiry for [Product Title] ([Style ID]): Please
+    provide custom FOB pricing, material recommendations, and sample lead times.` (From
+    `catalogue.html`, which has no contact form of its own, this instead sends the visitor to
+    `index.html#contact` with the same message pre-filled.)
+  - **"Chat on WhatsApp"** opens `wa.me/923719242006` with `Hi PrimeCraft, I am interested in
+    custom production for [Product Title] ([Style ID]).`
 
 There's no `style.css`/`catalogue.css` anymore — layout and color now come from Tailwind utility
 classes directly in the HTML, loaded via `<script src="https://cdn.tailwindcss.com">`. That means
