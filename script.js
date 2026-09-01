@@ -109,7 +109,7 @@
         })
         .catch(function () {
           if (status) {
-            status.textContent = "Something went wrong sending your request — please try again, or email us directly at primecraftpartners@gmail.com.";
+            status.textContent = "Something went wrong sending your request — please try again, or email us directly at sales@primecraftpartners.company.";
             status.className = "text-[0.85rem] text-center text-[#B23A2E] mt-3.5 min-h-[1.2em]";
           }
         })
@@ -146,7 +146,7 @@
           '<span class="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-brown">' + escapeHtml(p.category) + "</span>" +
           '<span class="text-[0.92rem] font-bold text-charcoal leading-snug">' + escapeHtml(p.title) + "</span>" +
           '<div class="flex justify-between items-center mt-auto pt-2">' +
-            '<span class="font-mono font-semibold text-[0.75rem] text-charcoal">MOQ: 50 Pcs</span>' +
+            '<span class="font-mono font-semibold text-[0.75rem] text-charcoal">MOQ: 30 Pcs</span>' +
             '<span class="text-[0.72rem] font-semibold text-brown">Custom OEM Quote</span>' +
           "</div>" +
         "</div>" +

@@ -1,5 +1,26 @@
 # PrimeCraft Partners — Website (v2: SEO + Web3Forms)
 
+## Domain & contact migration (latest update) — action items before you deploy
+The site now points at your official domain and business emails everywhere: canonical tags,
+Open Graph/Twitter tags, JSON-LD, header/footer links, mailto: links, and the copyright line all
+use `https://primecraftpartners.company/`, `haroon@primecraftpartners.company` (Founder & CEO),
+`sales@primecraftpartners.company` (Sales & Quotations), and `info@primecraftpartners.company`
+(General Information). `robots.txt` and `sitemap.xml` were added at the project root.
+
+Two things I could **not** do for you and need your action before this is fully live:
+
+1. **Get a new Web3Forms access key.** The form's hidden `access_key` field is still the one tied
+   to your old `primecraftpartners@gmail.com` inbox — it will keep working, but submissions will
+   land in Gmail, not your new domain email. Go to [web3forms.com](https://web3forms.com), verify
+   `sales@primecraftpartners.company` (or `info@`), and swap the new key into the
+   `<input type="hidden" name="access_key" ...>` field in `index.html` (there's a comment marking
+   exactly where).
+2. **Add two image files at your repo root**, since the new meta tags reference them:
+   - `og-image.jpg` — 1200×630px social share preview, referenced by `og:image` / `twitter:image`.
+   - `logo.png` — I pointed the JSON-LD `logo` field at your existing `assets/icon_logo.png`
+     instead of a non-existent root `logo.png`, since a broken logo URL actively hurts structured
+     data / rich snippets. Swap that back to a root `logo.png` if/when you add a dedicated one.
+
 ## What changed from v1
 - Rebuilt with **Tailwind CSS via CDN** (no build step) instead of a hand-rolled stylesheet.
 - Added **SEO meta tags** (title, description, canonical, Open Graph) and **Schema.org JSON-LD**
@@ -10,21 +31,24 @@
   "Private Label Leather Apparel Manufacturing".
 - **Contact form now submits by email via Web3Forms** (`https://api.web3forms.com/submit`) instead
   of opening WhatsApp. Your access key is already wired in:
-  `8c761ceb-ecd7-4677-ae8b-3b911083c74e`. Submissions land straight in
-  `primecraftpartners@gmail.com`. A honeypot field (`botcheck`) is included for spam protection.
+  `8c761ceb-ecd7-4677-ae8b-3b911083c74e`. Submissions land straight in the Gmail inbox that key was
+  issued to — see the domain-migration note above about rotating this. A honeypot field
+  (`botcheck`) is included for spam protection.
 - On submit, the page shows an inline success message ("Thank you! Our technical sourcing team
   will review your specs and respond within 24 hours.") without leaving the page.
 - WhatsApp is now a **secondary** contact option only — a small link in the header, a labeled
   link in the footer, and the floating action button. It's no longer the form's submission method.
 - Form fields now match your spec exactly: Full Name*, Business/Brand Name*, Work Email*, Phone/
   WhatsApp (optional), Product Category (Leather Jackets / Motorcycle Gear / Vests & Accessories /
-  Custom Outerwear), Estimated Order Quantity (50 pcs / 100–250 pcs / 500+ pcs), Message/Tech-Pack
+  Custom Outerwear), Estimated Order Quantity (30 pcs / 100–250 pcs / 500+ pcs), Message/Tech-Pack
   Link*.
 
 ## What's in this folder
 ```
 index.html            Homepage — hero, quality/QA, product range, services, process, contact
 catalogue.html         Full 275-style product catalogue with search + category filter
+robots.txt              Allows all crawlers, points to sitemap.xml
+sitemap.xml             Lists index.html and catalogue.html for search engines
 custom.css             Small handwritten CSS for the few things Tailwind utilities can't express
                         (the spec-sheet hangtag, stitched-thread divider, spinning ring)
 catalog-data.js         Product data layer: normalizes raw catalogue.json rows into the full
@@ -39,7 +63,7 @@ assets/factory/         Real photos from your Sialkot floor, used in the Materia
 
 ## Product cards & the detail modal
 - Every product card — on the homepage "Product Range" section and on the full
-  `catalogue.html` — shows a **`MOQ: 50 Pcs | Custom OEM Quote`** badge instead of any dollar
+  `catalogue.html` — shows a **`MOQ: 30 Pcs | Custom OEM Quote`** badge instead of any dollar
   price.
 - Clicking a card opens an on-page **modal** in a spacious two-column layout: photo on the left
   (full height on desktop, stacked on top on mobile), specs and actions on the right. The whole
@@ -84,11 +108,12 @@ load directly. If a product has no image, the card shows a styled placeholder wi
 of a broken image.
 
 ## Before you go live
-- **Update the domain**: `index.html` and `catalogue.html` both have `<link rel="canonical">` and
-  Open Graph tags pointing at `https://www.primecraftpartners.com/` — a placeholder. Swap this for
-  your real Netlify or custom domain once you know it (search-and-replace is enough).
-- **Verify the Web3Forms key**: it's already in `index.html` as a hidden field. If you ever need to
-  rotate it, get a new key at [web3forms.com](https://web3forms.com) and replace the value of
-  `<input type="hidden" name="access_key" ...>`.
+- **Domain is wired in**: `index.html` and `catalogue.html` canonical/Open Graph tags, JSON-LD, and
+  all contact links now point at `https://primecraftpartners.company/`. If you ever change domains
+  again, search-and-replace that string across the `.html` files, `robots.txt`, and `sitemap.xml`.
+- **Rotate the Web3Forms key** so form submissions land at your new domain email — see the
+  domain-migration note at the top of this file.
+- **Add `og-image.jpg`** (1200×630px) at the repo root so social share previews render correctly —
+  see the domain-migration note at the top of this file.
 - The homepage "Product Range" section features one representative style per category — edit the
   `order` list in `script.js` if you'd rather feature specific SKUs.
